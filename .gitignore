@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.weights
+static/uploads/*
+static/results/*
+!static/uploads/.gitkeep
+!static/results/.gitkeep

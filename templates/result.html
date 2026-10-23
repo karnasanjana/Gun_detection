@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Results · Weapon Detection{% endblock %}
+{% block content %}
+  <h1>Results</h1>
+  <p class="lead">{{ filename }} · {{ frames_checked }} frame{{ '' if frames_checked == 1 else 's' }} scanned</p>
+
+  {% if weapon_found %}
+    <div class="card alert"><strong>⚠ Weapon detected</strong>
+      {% if is_video %} in {{ results|length }} sampled frame{{ '' if results|length == 1 else 's' }}{% endif %}.</div>
+  {% else %}
+    <div class="card ok"><strong>✓ No weapon detected.</strong></div>
+  {% endif %}
+
+  <div class="grid">
+    {% for r in results %}
+      <figure>
+        <img src="{{ url_for('static', filename='results/' + r.image) }}" alt="Annotated frame">
+        <figcaption>
+          {% if r.time is not none %}at {{ '%d:%05.2f'|format((r.time // 60)|int, r.time % 60) }} · {% endif %}
+          {% for d in r.detections %}{{ d.label }} {{ '%.0f'|format(d.confidence * 100) }}%{% if not loop.last %}, {% endif %}{% else %}no detections{% endfor %}
+        </figcaption>
+      </figure>
+    {% endfor %}
+  </div>
+
+  <a class="btn" href="{{ url_for('index') }}">Scan another file</a>
+
+  {% if weapon_found %}
+  <script>
+    // Short alarm generated in the browser (no audio file, nothing plays on the server)
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, 0.35, 0.7].forEach((t) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = "square"; o.frequency.value = 880; g.gain.value = 0.08;
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.2);
+      });
+    } catch (e) { /* audio blocked; the banner still shows */ }
+  </script>
+  {% endif %}
+{% endblock %}

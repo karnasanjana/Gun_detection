@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Weapon Detection</h1>
+  <p class="lead">Upload a photo or a video clip. A YOLOv3 model trained on a single <em>weapon</em> class scans it and marks every detection.</p>
+
+  {% if model_error %}
+    <div class="card flash">
+      <strong>Model weights missing.</strong> {{ model_error }}
+    </div>
+  {% endif %}
+
+  <form class="card" action="{{ url_for('detect') }}" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*,video/*" required>
+    <button type="submit" {% if model_error %}disabled{% endif %}>Scan for weapons</button>
+    <p style="color:var(--muted);font-size:13px;margin:12px 0 0">Images: JPG, PNG, BMP, WebP · Videos: MP4, AVI, MOV, MKV (every 5th frame is scanned) · Max 100 MB · Uploads are deleted after processing.</p>
+  </form>
+{% endblock %}
